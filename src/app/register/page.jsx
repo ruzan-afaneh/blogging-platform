@@ -84,7 +84,7 @@ export default function Register() {
           </Button>
         </Box>
         <Typography variant="body2" align="center" sx={{ marginTop: 2 }}>
-          Already have an account? <a href="/auth/login" style={{ color: '#007BFF' }}>Log in</a>
+          Already have an account? <a href="/login" style={{ color: '#007BFF' }}>Log in</a>
         </Typography>
       </Paper>
     </Box>
