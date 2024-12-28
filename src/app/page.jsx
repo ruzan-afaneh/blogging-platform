@@ -1,5 +1,5 @@
-'use client';
-import { useEffect, useState } from 'react';
+"use client";
+import { useEffect, useState } from "react";
 import {
   Box,
   Typography,
@@ -12,10 +12,10 @@ import {
   Button,
   Tooltip,
   Fab,
-} from '@mui/material';
-import AddIcon from '@mui/icons-material/Add';
-import { supabase } from '../utils/supabaseClient'; // Adjust path as needed
-import { useRouter } from 'next/navigation';
+} from "@mui/material";
+import AddIcon from "@mui/icons-material/Add";
+import { supabase } from "../utils/supabaseClient"; // Adjust path as needed
+import { useRouter } from "next/navigation";
 
 export default function HomePage() {
   const [posts, setPosts] = useState([]);
@@ -26,16 +26,14 @@ export default function HomePage() {
     const fetchPostsAndUsers = async () => {
       try {
         // Fetch posts using the RPC function
-        const { data, error } = await supabase.rpc('fetch_posts_with_authors');
+        const { data, error } = await supabase
+          .from('posts')
+          .select(`*`);
 
-        if (error) {
-          console.error('Error fetching posts with authors:', error.message);
-        } else {
-          console.log('Fetched posts with authors:', data);
-          setPosts(data); // Update the state with fetched posts
-        }
+
+        setPosts(data); // Update the state with fetched posts
       } catch (error) {
-        console.error('Unexpected error fetching posts:', error.message);
+        console.error("Unexpected error fetching posts:", error.message);
       } finally {
         setLoading(false);
       }
@@ -57,10 +55,10 @@ export default function HomePage() {
       {/* Hero Section */}
       <Box
         sx={{
-          background: 'linear-gradient(120deg, #1e3a8a, #2563eb)',
-          color: '#fff',
+          background: "linear-gradient(120deg, #1e3a8a, #2563eb)",
+          color: "#fff",
           padding: 6,
-          textAlign: 'center',
+          textAlign: "center",
           borderRadius: 2,
           mb: 4,
         }}
@@ -68,14 +66,17 @@ export default function HomePage() {
         <Typography variant="h2" fontWeight="bold" gutterBottom>
           Welcome to Our Blog
         </Typography>
-        <Typography variant="subtitle1" sx={{ maxWidth: 600, margin: '0 auto' }}>
+        <Typography
+          variant="subtitle1"
+          sx={{ maxWidth: 600, margin: "0 auto" }}
+        >
           Discover inspiring stories, tips, and more from our talented authors.
           Stay updated with the latest trends and ideas!
         </Typography>
       </Box>
 
       {/* Post Grid */}
-      <Box sx={{ padding: 3, position: 'relative' }}>
+      <Box sx={{ padding: 3, position: "relative" }}>
         <Typography variant="h4" fontWeight="bold" gutterBottom>
           Latest Posts
         </Typography>
@@ -84,16 +85,16 @@ export default function HomePage() {
             <Grid item xs={12} sm={6} md={4} key={post.post_id}>
               <Card
                 sx={{
-                  height: '100%',
-                  display: 'flex',
-                  flexDirection: 'column',
-                  boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)',
+                  height: "100%",
+                  display: "flex",
+                  flexDirection: "column",
+                  boxShadow: "0 4px 12px rgba(0, 0, 0, 0.1)",
                   borderRadius: 3,
-                  transition: 'transform 0.3s, box-shadow 0.3s',
-                  cursor: 'pointer',
-                  ':hover': {
-                    transform: 'scale(1.05)',
-                    boxShadow: '0 6px 20px rgba(0, 0, 0, 0.2)',
+                  transition: "transform 0.3s, box-shadow 0.3s",
+                  cursor: "pointer",
+                  ":hover": {
+                    transform: "scale(1.05)",
+                    boxShadow: "0 6px 20px rgba(0, 0, 0, 0.2)",
                   },
                 }}
                 onClick={() => router.push(`/posts/${post.post_id}`)} // Navigate to dynamic post page
@@ -102,18 +103,24 @@ export default function HomePage() {
                   <Typography variant="h6" fontWeight="bold" gutterBottom>
                     {post.title}
                   </Typography>
-                  <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
+                  <Typography
+                    variant="body2"
+                    color="text.secondary"
+                    sx={{ mb: 2 }}
+                  >
                     {post.content.slice(0, 100)}...
                   </Typography>
                   <Chip
                     avatar={
-                      <Avatar>{post.author_email?.[0]?.toUpperCase() || '?'}</Avatar>
+                      <Avatar>
+                        {post.author_email?.[0]?.toUpperCase() || "?"}
+                      </Avatar>
                     }
-                    label={`Author: ${post.author_email || 'Unknown'}`}
+                    label={`Author: ${post.author_email || "Unknown"}`}
                     variant="outlined"
                   />
                 </CardContent>
-                <CardActions sx={{ justifyContent: 'space-between', px: 2 }}>
+                <CardActions sx={{ justifyContent: "space-between", px: 2 }}>
                   <Button
                     size="small"
                     variant="contained"
@@ -133,9 +140,9 @@ export default function HomePage() {
           <Fab
             color="primary"
             aria-label="add"
-            onClick={() => router.push('/create-post')}
+            onClick={() => router.push("/create-post")}
             sx={{
-              position: 'fixed',
+              position: "fixed",
               bottom: 20,
               right: 20,
             }}
