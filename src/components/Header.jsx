@@ -1,56 +1,83 @@
 'use client';
-import { AppBar, Toolbar, Typography, Button, IconButton, Box, Menu, MenuItem } from '@mui/material';
-import MenuIcon from '@mui/icons-material/Menu';
-import { useState } from 'react';
+
+import { useState, useEffect } from 'react';
+import { AppBar, Toolbar, Typography, Button, Box, Avatar } from '@mui/material';
+import { supabase } from '../utils/supabaseClient';
 import { useRouter } from 'next/navigation';
 
 export default function Header() {
-  const [anchorEl, setAnchorEl] = useState(null);
-  const open = Boolean(anchorEl);
-  const router = useRouter(); // Next.js router for client-side navigation
+  const [user, setUser] = useState(null);
+  const router = useRouter();
 
-  const handleMenuOpen = (event) => setAnchorEl(event.currentTarget);
-  const handleMenuClose = () => setAnchorEl(null);
+  useEffect(() => {
+    const fetchUser = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      setUser(session?.user || null);
+    };
 
-  const navigateTo = (path) => {
-    handleMenuClose();
-    router.push(path); // Navigate using Next.js router
+    fetchUser();
+
+    // Listen for authentication changes
+    const { data: subscription } = supabase.auth.onAuthStateChange((_event, session) => {
+      setUser(session?.user || null);
+    });
+
+    return () => {
+      subscription?.unsubscribe();
+    };
+  }, []);
+
+  const handleLogout = async () => {
+    try {
+      await supabase.auth.signOut();
+      setUser(null);
+      router.push('/');
+    } catch (error) {
+      console.error('Error logging out:', error.message);
+    }
   };
 
   return (
-    <AppBar position="static" sx={{ backgroundColor: '#1F2937' }}>
-      <Toolbar>
-        <Typography
-          variant="h6"
-          component="div"
-          sx={{ flexGrow: 1, fontWeight: 'bold', cursor: 'pointer' }}
-          onClick={() => navigateTo('/')}
-        >
-          Blogging Platform
+    <AppBar position="static" sx={{ background: '#1e3a8a' }}>
+      <Toolbar sx={{ display: 'flex', justifyContent: 'space-between' }}>
+        <Typography variant="h6" sx={{ cursor: 'pointer' }} onClick={() => router.push('/')}>
+          My Blog
         </Typography>
-        <Box sx={{ display: { xs: 'none', md: 'flex' } }}>
-          <Button color="inherit" onClick={() => navigateTo('/')}>Home</Button>
-          <Button color="inherit" onClick={() => navigateTo('/about')}>About</Button>
-          <Button color="inherit" onClick={() => navigateTo('/contact')}>Contact</Button>
+
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+          {user ? (
+            <>
+              <Avatar sx={{ backgroundColor: '#fff', color: '#1e3a8a' }}>
+                {user.email[0].toUpperCase()}
+              </Avatar>
+              <Typography variant="body1">{user.email}</Typography>
+              <Button
+                color="inherit"
+                onClick={handleLogout}
+                sx={{ textTransform: 'none', backgroundColor: '#fff', color: '#1e3a8a' }}
+              >
+                Logout
+              </Button>
+            </>
+          ) : (
+            <>
+              <Button
+                color="inherit"
+                onClick={() => router.push('/login')}
+                sx={{ textTransform: 'none', backgroundColor: '#fff', color: '#1e3a8a' }}
+              >
+                Login
+              </Button>
+              <Button
+                color="inherit"
+                onClick={() => router.push('/register')}
+                sx={{ textTransform: 'none', backgroundColor: '#fff', color: '#1e3a8a' }}
+              >
+                Register
+              </Button>
+            </>
+          )}
         </Box>
-        <IconButton
-          color="inherit"
-          edge="start"
-          sx={{ display: { xs: 'flex', md: 'none' } }}
-          onClick={handleMenuOpen}
-        >
-          <MenuIcon />
-        </IconButton>
-        <Menu
-          anchorEl={anchorEl}
-          open={open}
-          onClose={handleMenuClose}
-          sx={{ display: { xs: 'block', md: 'none' } }}
-        >
-          <MenuItem onClick={() => navigateTo('/')}>Home</MenuItem>
-          <MenuItem onClick={() => navigateTo('/about')}>About</MenuItem>
-          <MenuItem onClick={() => navigateTo('/contact')}>Contact</MenuItem>
-        </Menu>
       </Toolbar>
     </AppBar>
   );
