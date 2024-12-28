@@ -12,10 +12,12 @@ import {
   Button,
   Tooltip,
   Fab,
+  CircularProgress,
 } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
-import { supabase } from "../utils/supabaseClient"; // Adjust path as needed
+import { supabase } from "../utils/supabaseClient";
 import { useRouter } from "next/navigation";
+import PostCard from "@/components/PostCard";
 
 export default function HomePage() {
   const [posts, setPosts] = useState([]);
@@ -23,9 +25,8 @@ export default function HomePage() {
   const router = useRouter();
 
   useEffect(() => {
-    const fetchPostsAndUsers = async () => {
+    const fetchPosts = async () => {
       try {
-        // Fetch posts and order by created_at in descending order
         const { data, error } = await supabase
           .from("posts")
           .select("*")
@@ -34,7 +35,7 @@ export default function HomePage() {
         if (error) {
           console.error("Error fetching posts:", error.message);
         } else {
-          setPosts(data); // Update the state with fetched posts
+          setPosts(data || []);
         }
       } catch (error) {
         console.error("Unexpected error fetching posts:", error.message);
@@ -43,14 +44,21 @@ export default function HomePage() {
       }
     };
 
-    fetchPostsAndUsers();
+    fetchPosts();
   }, []);
 
   if (loading) {
     return (
-      <Typography align="center" sx={{ mt: 5 }}>
-        Loading...
-      </Typography>
+      <Box
+        sx={{
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          minHeight: "100vh",
+        }}
+      >
+        <CircularProgress />
+      </Box>
     );
   }
 
@@ -64,6 +72,7 @@ export default function HomePage() {
           textAlign: "center",
           borderRadius: 2,
           mb: 4,
+          p: 4,
         }}
       >
         <Typography variant="h3" fontWeight="bold" gutterBottom>
@@ -78,67 +87,23 @@ export default function HomePage() {
         </Typography>
       </Box>
 
+      {/* Post Grid */}
       <Box>
-        <Typography variant="h4" fontWeight="bold" gutterBottom>
+        <Typography
+          variant="h4"
+          fontWeight="bold"
+          gutterBottom
+          sx={{ mb: 3 }}
+        >
           Latest Posts
         </Typography>
         <Grid container spacing={4}>
-          {posts.map((post, index) => (
-            <Grid
-              item
-              xs={12}
-              sm={6}
-              md={4}
-              key={post.id || index}
-            >
-              <Card
-                sx={{
-                  height: "100%",
-                  display: "flex",
-                  flexDirection: "column",
-                  boxShadow: "0 4px 12px rgba(0, 0, 0, 0.1)",
-                  borderRadius: 3,
-                  transition: "transform 0.3s, box-shadow 0.3s",
-                  cursor: "pointer",
-                  ":hover": {
-                    transform: "scale(1.05)",
-                    boxShadow: "0 6px 20px rgba(0, 0, 0, 0.2)",
-                  },
-                }}
+          {posts.map((post) => (
+            <Grid item xs={12} sm={6} md={4} key={post.id}>
+              <PostCard
+                post={post}
                 onClick={() => router.push(`/posts/${post.id}`)}
-              >
-                <CardContent sx={{ flexGrow: 1 }}>
-                  <Typography variant="h6" fontWeight="bold" gutterBottom>
-                    {post.title}
-                  </Typography>
-                  <Typography
-                    variant="body2"
-                    color="text.secondary"
-                    sx={{ mb: 2 }}
-                  >
-                    {post.content.slice(0, 100)}...
-                  </Typography>
-                  <Chip
-                    avatar={
-                      <Avatar>
-                        {post.author_email?.[0]?.toUpperCase() || "?"}
-                      </Avatar>
-                    }
-                    label={`Author: ${post.author_email || "Unknown"}`}
-                    variant="outlined"
-                  />
-                </CardContent>
-                <CardActions sx={{ justifyContent: "space-between", px: 2 }}>
-                  <Button
-                    size="small"
-                    variant="contained"
-                    color="primary"
-                    onClick={() => router.push(`/posts/${post.id}`)}
-                  >
-                    Read More
-                  </Button>
-                </CardActions>
-              </Card>
+              />
             </Grid>
           ))}
         </Grid>
