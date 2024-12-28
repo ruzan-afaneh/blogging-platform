@@ -20,11 +20,7 @@ export default function PostPage() {
             title,
             content,
             created_at,
-            authorid,
-            users (
-              email,
-              full_name
-            )
+            author_email
           `)
           .eq('id', id)
           .single();
@@ -67,8 +63,7 @@ export default function PostPage() {
         {post.title}
       </Typography>
       <Typography variant="subtitle2" color="text.secondary" gutterBottom>
-        By {post.users?.full_name || post.users?.email} on{' '}
-        {new Date(post.created_at).toLocaleDateString()}
+        By {post.author_email || 'Unknown'} on {new Date(post.created_at).toLocaleDateString()}
       </Typography>
       <Typography variant="body1" sx={{ mt: 2 }}>
         {post.content}
