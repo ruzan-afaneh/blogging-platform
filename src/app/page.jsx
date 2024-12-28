@@ -29,7 +29,7 @@ export default function HomePage() {
       try {
         const { data, error } = await supabase
           .from("posts")
-          .select("*")
+          .select("id, title, content, created_at, username")
           .order("created_at", { ascending: false });
 
         if (error) {
@@ -43,6 +43,7 @@ export default function HomePage() {
         setLoading(false);
       }
     };
+    
 
     fetchPosts();
   }, []);

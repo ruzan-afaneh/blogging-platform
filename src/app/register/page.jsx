@@ -5,21 +5,42 @@ import { Box, TextField, Button, Typography, Paper, Alert } from '@mui/material'
 import { useRouter } from 'next/navigation';
 
 export default function Register() {
-  const [formData, setFormData] = useState({ email: '', password: '' });
+  const [formData, setFormData] = useState({ email: '', password: '', username: '' });
   const [error, setError] = useState(null);
-  const router = useRouter(); // Use Next.js router for navigation
+  const [success, setSuccess] = useState(null);
+  const router = useRouter();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const { email, password } = formData;
+    const { email, password, username } = formData;
+
+    // Basic input validation
+    if (!email || !password || !username) {
+      setError('All fields are required.');
+      return;
+    }
 
     try {
-      const { error } = await supabase.auth.signUp({ email, password });
+      const { error } = await supabase.auth.signUp({
+        email,
+        password,
+        options: {
+          data: {
+            username,
+          },
+        },
+      });
+
       if (error) throw error;
 
-      // Redirect to the home page after successful registration
-      router.push('/');
+      setSuccess('Account created successfully! Redirecting to the home page...');
+      setError(null);
+
+      setTimeout(() => {
+        router.push('/');
+      }, 2000);
     } catch (err) {
+      console.error('Error registering user:', err.message);
       setError(err.message);
     }
   };
@@ -48,8 +69,19 @@ export default function Register() {
         <Typography variant="h5" fontWeight="bold" gutterBottom align="center">
           Create an Account
         </Typography>
-        {error && <Alert severity="error">{error}</Alert>}
+        {error && <Alert severity="error" sx={{ mb: 2 }}>{error}</Alert>}
+        {success && <Alert severity="success" sx={{ mb: 2 }}>{success}</Alert>}
         <Box component="form" onSubmit={handleSubmit} noValidate>
+          <TextField
+            fullWidth
+            label="Username"
+            type="text"
+            margin="normal"
+            required
+            value={formData.username}
+            onChange={(e) => setFormData({ ...formData, username: e.target.value })}
+            placeholder="Enter your username"
+          />
           <TextField
             fullWidth
             label="Email Address"
@@ -58,6 +90,7 @@ export default function Register() {
             required
             value={formData.email}
             onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+            placeholder="Enter your email"
           />
           <TextField
             fullWidth
@@ -67,6 +100,7 @@ export default function Register() {
             required
             value={formData.password}
             onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+            placeholder="Enter your password"
           />
           <Button
             type="submit"
@@ -84,7 +118,10 @@ export default function Register() {
           </Button>
         </Box>
         <Typography variant="body2" align="center" sx={{ marginTop: 2 }}>
-          Already have an account? <a href="/login" style={{ color: '#007BFF' }}>Log in</a>
+          Already have an account?{' '}
+          <a href="/login" style={{ color: '#007BFF' }}>
+            Log in
+          </a>
         </Typography>
       </Paper>
     </Box>

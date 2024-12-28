@@ -34,36 +34,40 @@ export default function CreatePost() {
     e.preventDefault();
     setLoading(true);
     setError(null);
-
+  
     try {
       const {
         data: { user },
         error: userError,
       } = await supabase.auth.getUser();
-
+  
       if (userError) {
         throw new Error(userError.message);
       }
-
+  
       if (!user) {
         throw new Error('You must be logged in to create a post.');
       }
-
+  
+      const { username } = user.user_metadata;
+  
+      // Insert the new post into the `posts` table
       const { error: insertError } = await supabase.from('posts').insert([
         {
           title,
           content,
-          authorid: user.id,
-          author_email: user.email,
+          authorid: user.id, // Associate the post with the logged-in user
+          username, // Save the username in the post
         },
       ]);
-
+  
       if (insertError) {
         throw new Error(insertError.message);
       }
-
+  
       router.push('/');
     } catch (err) {
+      console.error('Error creating post:', err.message);
       setError(err.message);
     } finally {
       setLoading(false);

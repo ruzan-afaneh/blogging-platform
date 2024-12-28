@@ -60,10 +60,10 @@ export const PostCard = ({ post, onClick }) => {
         {/* Author Info */}
         <Box sx={{ display: "flex", alignItems: "center", mt: 2 }}>
           <Avatar sx={{ bgcolor: "#1e3a8a", mr: 1 }}>
-            {post.author_email?.[0]?.toUpperCase() || "?"}
+            {post.username?.[0]?.toUpperCase() || "?"}
           </Avatar>
           <Typography variant="body2" color="text.secondary">
-            {post.author_email || "Unknown"}
+            {post.username || "Unknown"}
           </Typography>
         </Box>
       </CardContent>
@@ -98,4 +98,4 @@ export const PostCard = ({ post, onClick }) => {
   );
 };
 
-export default PostCard
+export default PostCard;
