@@ -44,7 +44,7 @@ export default function PostPage() {
             content,
             created_at,
             authorid,
-            author_email
+            username
           `)
           .eq('id', id)
           .single();
@@ -177,7 +177,7 @@ export default function PostPage() {
             )}
           </Box>
           <Typography variant="subtitle2" color="text.secondary" gutterBottom>
-            By {post.author_email || 'Unknown'} on {new Date(post.created_at).toLocaleDateString()}
+            By {post.username || 'Unknown'} on {new Date(post.created_at).toLocaleDateString()}
           </Typography>
           <Typography variant="body1" sx={{ mt: 2 }}>
             {post.content}
