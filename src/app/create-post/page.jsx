@@ -17,17 +17,11 @@ export default function CreatePost() {
     const checkAuth = async () => {
       const {
         data: { session },
-        error: sessionError,
       } = await supabase.auth.getSession();
-
-      if (sessionError) {
-        console.error('Error checking session:', sessionError.message);
-      }
 
       if (!session) {
         // Redirect to login with redirectTo parameter
-        const loginUrl = `/login?message=Please login to create a post&redirectTo=/create-post`;
-        router.push(loginUrl);
+        router.push('/login?message=Please+login+to+create+a+post&redirectTo=/create-post');
       } else {
         setIsAuthorized(true);
       }
@@ -42,7 +36,6 @@ export default function CreatePost() {
     setError(null);
 
     try {
-      // Get the logged-in user
       const {
         data: { user },
         error: userError,
@@ -56,7 +49,6 @@ export default function CreatePost() {
         throw new Error('You must be logged in to create a post.');
       }
 
-      // Insert the new post into the `posts` table
       const { error: insertError } = await supabase.from('posts').insert([
         {
           title,
@@ -72,7 +64,6 @@ export default function CreatePost() {
 
       router.push('/');
     } catch (err) {
-      console.error('Error creating post:', err.message);
       setError(err.message);
     } finally {
       setLoading(false);

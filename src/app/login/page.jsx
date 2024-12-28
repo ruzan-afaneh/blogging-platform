@@ -3,22 +3,24 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '../../utils/supabaseClient';
 import { Box, TextField, Button, Typography, Paper, Alert } from '@mui/material';
-import { useRouter, useSearchParams } from 'next/navigation';
+import { useRouter } from 'next/navigation';
 
 export default function Login() {
   const [formData, setFormData] = useState({ email: '', password: '' });
   const [error, setError] = useState(null);
   const [redirectMessage, setRedirectMessage] = useState('');
+  const [redirectTo, setRedirectTo] = useState('/'); // Default redirection path
   const router = useRouter();
-  const searchParams = useSearchParams(); // Use to extract query params
 
   useEffect(() => {
-    // Extract the "message" parameter from the URL
-    const message = searchParams.get('message');
-    if (message) {
-      setRedirectMessage(message);
-    }
-  }, [searchParams]);
+    // Extract the "message" and "redirectTo" parameters from the URL
+    const urlParams = new URLSearchParams(window.location.search);
+    const message = urlParams.get('message');
+    const redirectToParam = urlParams.get('redirectTo');
+
+    if (message) setRedirectMessage(message);
+    if (redirectToParam) setRedirectTo(redirectToParam); // Save the redirectTo value
+  }, []);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -28,8 +30,7 @@ export default function Login() {
       const { error } = await supabase.auth.signInWithPassword({ email, password });
       if (error) throw error;
 
-      // Redirect to the home page after successful login
-      router.push('/');
+      router.push(redirectTo);
     } catch (err) {
       setError(err.message);
     }
