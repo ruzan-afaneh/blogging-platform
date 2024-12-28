@@ -54,7 +54,6 @@ export default function HomePage() {
         sx={{
           background: "linear-gradient(120deg, #1e3a8a, #2563eb)",
           color: "#fff",
-          padding: 6,
           textAlign: "center",
           borderRadius: 2,
           mb: 4,
@@ -72,8 +71,7 @@ export default function HomePage() {
         </Typography>
       </Box>
 
-      {/* Post Grid */}
-      <Box sx={{ padding: 3, position: "relative" }}>
+      <Box>
         <Typography variant="h4" fontWeight="bold" gutterBottom>
           Latest Posts
         </Typography>
