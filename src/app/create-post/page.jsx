@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { supabase } from '../../utils/supabaseClient';
 import { Box, TextField, Button, Typography, CircularProgress } from '@mui/material';
@@ -10,7 +10,30 @@ export default function CreatePost() {
   const [content, setContent] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [isAuthorized, setIsAuthorized] = useState(false);
   const router = useRouter();
+
+  useEffect(() => {
+    const checkAuth = async () => {
+      const {
+        data: { session },
+        error: sessionError,
+      } = await supabase.auth.getSession();
+
+      if (sessionError) {
+        console.error('Error checking session:', sessionError.message);
+      }
+
+      if (!session) {
+        // Redirect to login page with a message
+        router.push('/login?message=Please login to create a post');
+      } else {
+        setIsAuthorized(true);
+      }
+    };
+
+    checkAuth();
+  }, [router]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -54,6 +77,14 @@ export default function CreatePost() {
       setLoading(false);
     }
   };
+
+  if (!isAuthorized) {
+    return (
+      <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
+        <CircularProgress />
+      </Box>
+    );
+  }
 
   return (
     <Box sx={{ maxWidth: 600, margin: '0 auto', mt: 4 }}>
