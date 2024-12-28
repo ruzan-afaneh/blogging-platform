@@ -25,8 +25,9 @@ export default function CreatePost() {
       }
 
       if (!session) {
-        // Redirect to login page with a message
-        router.push('/login?message=Please login to create a post');
+        // Redirect to login with redirectTo parameter
+        const loginUrl = `/login?message=Please login to create a post&redirectTo=/create-post`;
+        router.push(loginUrl);
       } else {
         setIsAuthorized(true);
       }

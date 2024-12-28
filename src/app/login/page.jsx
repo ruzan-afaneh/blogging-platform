@@ -1,13 +1,24 @@
 'use client';
-import { useState } from 'react';
+
+import { useState, useEffect } from 'react';
 import { supabase } from '../../utils/supabaseClient';
 import { Box, TextField, Button, Typography, Paper, Alert } from '@mui/material';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 
 export default function Login() {
   const [formData, setFormData] = useState({ email: '', password: '' });
   const [error, setError] = useState(null);
-  const router = useRouter(); // Use Next.js router for navigation
+  const [redirectMessage, setRedirectMessage] = useState('');
+  const router = useRouter();
+  const searchParams = useSearchParams(); // Use to extract query params
+
+  useEffect(() => {
+    // Extract the "message" parameter from the URL
+    const message = searchParams.get('message');
+    if (message) {
+      setRedirectMessage(message);
+    }
+  }, [searchParams]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -48,7 +59,16 @@ export default function Login() {
         <Typography variant="h5" fontWeight="bold" gutterBottom align="center">
           Welcome Back
         </Typography>
-        {error && <Alert severity="error">{error}</Alert>}
+        {redirectMessage && (
+          <Alert severity="info" sx={{ marginBottom: 2 }}>
+            {redirectMessage}
+          </Alert>
+        )}
+        {error && (
+          <Alert severity="error" sx={{ marginBottom: 2 }}>
+            {error}
+          </Alert>
+        )}
         <Box component="form" onSubmit={handleSubmit} noValidate>
           <TextField
             fullWidth
