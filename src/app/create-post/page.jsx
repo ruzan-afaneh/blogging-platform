@@ -37,7 +37,8 @@ export default function CreatePost() {
         {
           title,
           content,
-          authorid: user.id, // Associate the post with the logged-in user
+          authorid: user.id,
+          author_email: user.email,
         },
       ]);
 
@@ -45,7 +46,6 @@ export default function CreatePost() {
         throw new Error(insertError.message);
       }
 
-      // Redirect to the homepage after successful creation
       router.push('/');
     } catch (err) {
       console.error('Error creating post:', err.message);

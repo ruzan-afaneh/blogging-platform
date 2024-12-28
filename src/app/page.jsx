@@ -26,10 +26,7 @@ export default function HomePage() {
     const fetchPostsAndUsers = async () => {
       try {
         // Fetch posts using the RPC function
-        const { data, error } = await supabase
-          .from('posts')
-          .select(`*`);
-
+        const { data, error } = await supabase.from("posts").select(`*`);
 
         setPosts(data); // Update the state with fetched posts
       } catch (error) {
@@ -81,8 +78,14 @@ export default function HomePage() {
           Latest Posts
         </Typography>
         <Grid container spacing={4}>
-          {posts.map((post) => (
-            <Grid item xs={12} sm={6} md={4} key={post.post_id}>
+          {posts.map((post, index) => (
+            <Grid
+              item
+              xs={12}
+              sm={6}
+              md={4}
+              key={post.id || index}
+            >
               <Card
                 sx={{
                   height: "100%",
@@ -97,7 +100,7 @@ export default function HomePage() {
                     boxShadow: "0 6px 20px rgba(0, 0, 0, 0.2)",
                   },
                 }}
-                onClick={() => router.push(`/posts/${post.post_id}`)} // Navigate to dynamic post page
+                onClick={() => router.push(`/posts/${post.id}`)}
               >
                 <CardContent sx={{ flexGrow: 1 }}>
                   <Typography variant="h6" fontWeight="bold" gutterBottom>
@@ -125,7 +128,7 @@ export default function HomePage() {
                     size="small"
                     variant="contained"
                     color="primary"
-                    onClick={() => router.push(`/posts/${post.post_id}`)}
+                    onClick={() => router.push(`/posts/${post.id}`)}
                   >
                     Read More
                   </Button>
