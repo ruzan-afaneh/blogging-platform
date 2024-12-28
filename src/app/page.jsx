@@ -1,5 +1,5 @@
-'use client';
-import { useEffect, useState } from 'react';
+"use client";
+import { useEffect, useState } from "react";
 import {
   Box,
   Typography,
@@ -7,37 +7,47 @@ import {
   Card,
   CardContent,
   CardActions,
-  Button,
-  Avatar,
   Chip,
-  IconButton,
-} from '@mui/material';
-import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder';
-import FavoriteIcon from '@mui/icons-material/Favorite';
-import ShareIcon from '@mui/icons-material/Share';
+  Avatar,
+  Button,
+  Tooltip,
+  Fab,
+} from "@mui/material";
+import AddIcon from "@mui/icons-material/Add";
+import { supabase } from "../utils/supabaseClient"; // Adjust path as needed
+import { useRouter } from "next/navigation";
 
 export default function HomePage() {
   const [posts, setPosts] = useState([]);
   const [loading, setLoading] = useState(true);
+  const router = useRouter();
 
   useEffect(() => {
-    const fetchPosts = async () => {
+    const fetchPostsAndUsers = async () => {
       try {
-        const response = await fetch('https://jsonplaceholder.typicode.com/posts');
-        const data = await response.json();
-        setPosts(data.slice(0, 10)); // Limit to 10 posts
+        // Fetch posts using the RPC function
+        const { data, error } = await supabase
+          .from('posts')
+          .select(`*`);
+
+
+        setPosts(data); // Update the state with fetched posts
       } catch (error) {
-        console.error('Error fetching posts:', error);
+        console.error("Unexpected error fetching posts:", error.message);
       } finally {
         setLoading(false);
       }
     };
 
-    fetchPosts();
+    fetchPostsAndUsers();
   }, []);
 
   if (loading) {
-    return <Typography align="center" sx={{ mt: 5 }}>Loading...</Typography>;
+    return (
+      <Typography align="center" sx={{ mt: 5 }}>
+        Loading...
+      </Typography>
+    );
   }
 
   return (
@@ -45,10 +55,10 @@ export default function HomePage() {
       {/* Hero Section */}
       <Box
         sx={{
-          background: 'linear-gradient(120deg, #1e3a8a, #2563eb)',
-          color: '#fff',
+          background: "linear-gradient(120deg, #1e3a8a, #2563eb)",
+          color: "#fff",
           padding: 6,
-          textAlign: 'center',
+          textAlign: "center",
           borderRadius: 2,
           mb: 4,
         }}
@@ -56,72 +66,90 @@ export default function HomePage() {
         <Typography variant="h2" fontWeight="bold" gutterBottom>
           Welcome to Our Blog
         </Typography>
-        <Typography variant="subtitle1" sx={{ maxWidth: 600, margin: '0 auto' }}>
-          Discover inspiring stories, tips, and more from our talented authors. Stay updated with
-          the latest trends and ideas!
+        <Typography
+          variant="subtitle1"
+          sx={{ maxWidth: 600, margin: "0 auto" }}
+        >
+          Discover inspiring stories, tips, and more from our talented authors.
+          Stay updated with the latest trends and ideas!
         </Typography>
       </Box>
 
       {/* Post Grid */}
-      <Box sx={{ padding: 3 }}>
+      <Box sx={{ padding: 3, position: "relative" }}>
         <Typography variant="h4" fontWeight="bold" gutterBottom>
           Latest Posts
         </Typography>
         <Grid container spacing={4}>
           {posts.map((post) => (
-            <Grid item xs={12} sm={6} md={4} key={post.id}>
+            <Grid item xs={12} sm={6} md={4} key={post.post_id}>
               <Card
                 sx={{
-                  height: '100%',
-                  display: 'flex',
-                  flexDirection: 'column',
-                  boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)',
+                  height: "100%",
+                  display: "flex",
+                  flexDirection: "column",
+                  boxShadow: "0 4px 12px rgba(0, 0, 0, 0.1)",
                   borderRadius: 3,
-                  transition: 'transform 0.3s, box-shadow 0.3s',
-                  ':hover': {
-                    transform: 'scale(1.05)',
-                    boxShadow: '0 6px 20px rgba(0, 0, 0, 0.2)',
+                  transition: "transform 0.3s, box-shadow 0.3s",
+                  cursor: "pointer",
+                  ":hover": {
+                    transform: "scale(1.05)",
+                    boxShadow: "0 6px 20px rgba(0, 0, 0, 0.2)",
                   },
                 }}
+                onClick={() => router.push(`/posts/${post.post_id}`)} // Navigate to dynamic post page
               >
                 <CardContent sx={{ flexGrow: 1 }}>
                   <Typography variant="h6" fontWeight="bold" gutterBottom>
                     {post.title}
                   </Typography>
-                  <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
-                    {post.body.slice(0, 100)}...
+                  <Typography
+                    variant="body2"
+                    color="text.secondary"
+                    sx={{ mb: 2 }}
+                  >
+                    {post.content.slice(0, 100)}...
                   </Typography>
                   <Chip
-                    avatar={<Avatar>{post.userId}</Avatar>}
-                    label={`Author ${post.userId}`}
+                    avatar={
+                      <Avatar>
+                        {post.author_email?.[0]?.toUpperCase() || "?"}
+                      </Avatar>
+                    }
+                    label={`Author: ${post.author_email || "Unknown"}`}
                     variant="outlined"
-                    sx={{ mb: 1 }}
                   />
                 </CardContent>
-                <CardActions sx={{ justifyContent: 'space-between', px: 2 }}>
-                  <Box>
-                    <Button
-                      size="small"
-                      variant="contained"
-                      color="primary"
-                      onClick={() => alert(`Viewing post: ${post.title}`)}
-                    >
-                      Read More
-                    </Button>
-                  </Box>
-                  <Box>
-                    <IconButton aria-label="like">
-                      <FavoriteBorderIcon />
-                    </IconButton>
-                    <IconButton aria-label="share">
-                      <ShareIcon />
-                    </IconButton>
-                  </Box>
+                <CardActions sx={{ justifyContent: "space-between", px: 2 }}>
+                  <Button
+                    size="small"
+                    variant="contained"
+                    color="primary"
+                    onClick={() => router.push(`/posts/${post.post_id}`)}
+                  >
+                    Read More
+                  </Button>
                 </CardActions>
               </Card>
             </Grid>
           ))}
         </Grid>
+
+        {/* Add Post Button */}
+        <Tooltip title="Add a new blog post" arrow>
+          <Fab
+            color="primary"
+            aria-label="add"
+            onClick={() => router.push("/create-post")}
+            sx={{
+              position: "fixed",
+              bottom: 20,
+              right: 20,
+            }}
+          >
+            <AddIcon />
+          </Fab>
+        </Tooltip>
       </Box>
     </Box>
   );
