@@ -1,4 +1,4 @@
-"use client";
+'use client';
 import { useEffect, useState } from "react";
 import {
   Box,
@@ -25,10 +25,17 @@ export default function HomePage() {
   useEffect(() => {
     const fetchPostsAndUsers = async () => {
       try {
-        // Fetch posts using the RPC function
-        const { data, error } = await supabase.from("posts").select(`*`);
+        // Fetch posts and order by created_at in descending order
+        const { data, error } = await supabase
+          .from("posts")
+          .select("*")
+          .order("created_at", { ascending: false });
 
-        setPosts(data); // Update the state with fetched posts
+        if (error) {
+          console.error("Error fetching posts:", error.message);
+        } else {
+          setPosts(data); // Update the state with fetched posts
+        }
       } catch (error) {
         console.error("Unexpected error fetching posts:", error.message);
       } finally {
@@ -59,7 +66,7 @@ export default function HomePage() {
           mb: 4,
         }}
       >
-        <Typography variant="h2" fontWeight="bold" gutterBottom>
+        <Typography variant="h3" fontWeight="bold" gutterBottom>
           Welcome to Our Blog
         </Typography>
         <Typography
