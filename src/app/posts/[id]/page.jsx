@@ -31,9 +31,11 @@ export default function PostPage() {
     const fetchPostAndUser = async () => {
       try {
         // Fetch the logged-in user
-        const { data: userData, error: userError } = await supabase.auth.getUser();
-        if (userError) throw new Error(userError.message);
-        setCurrentUser(userData?.user);
+        const { data: session, error: sessionError } = await supabase.auth.getSession();
+        if (sessionError) {
+          console.warn('No active session found:', sessionError.message);
+        }
+        setCurrentUser(session?.user || null);
 
         // Fetch the post
         const { data: postData, error: postError } = await supabase
