@@ -1,5 +1,7 @@
 'use client';
 
+import React from "react";
+
 import { useState, useEffect } from 'react';
 import { supabase } from '../../utils/supabaseClient';
 import { Box, TextField, Button, Typography, Paper, Alert } from '@mui/material';
